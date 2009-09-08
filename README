@@ -1,2 +1,40 @@
+########################
+To install:
+
+gem install redbeard-liquibase-rails -s http://gems.github.com
+
+########################
+To use:
+
 require 'liquibase-rails' in your Rakefile
 Place Liquibase updates in 'db/schema' with a master changelog: 'db/schema/master.xml'
+
+The usual suspects:
+
+rake db:migrate
+rake db:drop
+rake db:test:prepare
+
+Should all work as expected, except with Liquibase instead of Rails migrations.
+Liquibase-Rails uses the configuration from database.yml and the current Rails environment (as set with RAILS_ENV=...)
+
+Extra tasks defined, see the liquibase namespace in rake:
+rake -T liquibase
+
+i.e.
+rake liquibase:dump
+
+Dumps a changelog of the current db, which is a good way of creating your initial master.xml.
+
+########################
+Defining tasks:
+
+Example:
+
+  task(:dump => :prereq).enhance do
+    Liquibase.for(current_environment).run do
+      and_do generateChangeLog
+    end
+  end
+
+See more examples in lib/liquibase/tasks.rb
