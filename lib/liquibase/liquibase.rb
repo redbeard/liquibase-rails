@@ -2,7 +2,7 @@ module Liquibase
   
   def self.for(config)
     self.configure do
-      with data_directory "db/schema"
+      with data_directory File.expand_path("#{RAILS_ROOT}/db/schema")
       with driver config["driver"]
 
       with username config["username"]
@@ -12,7 +12,6 @@ module Liquibase
 
       with logLevel "warning"
     end
-    
   end
 
   
@@ -47,8 +46,10 @@ module Liquibase
       configure(&block)
       execute
     end
-    
-    alias_method :configure, :instance_eval
+
+    def configure(&block)
+      instance_eval(&block)
+    end
     
     def initialize()
       @commands = []
@@ -57,8 +58,10 @@ module Liquibase
     def execute()
       args = @commands.map { | command | command.to_args }
       args_array = args.flatten.map { | arg | arg.to_s }
-      # puts "Running liquibase with arguments: #{args_array.inspect}"
+      puts "Running liquibase with arguments: #{args_array.inspect}"
       Java::liquibase.commandline.Main.main( args_array.to_java(:string) )
+      # Note that when an error occurs, liquibase calls System.exit(...) directly!
+      # So this method never returns.
     end
     
     def data_directory(data_dir)

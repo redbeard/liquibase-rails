@@ -1,0 +1,2 @@
+require 'liquibase-rails' in your Rakefile
+Place Liquibase updates in 'db/schema' with a master changelog: 'db/schema/master.xml'
